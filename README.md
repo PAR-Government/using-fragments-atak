@@ -21,7 +21,7 @@ I also figure that providing an API for child fragments to supplement or otherwi
 If you want a ribbon/title bar to consistently show on each screen, consider the following:
     - A reusable layout resource. Consuming layout resources would utilize Android's `<include>` or `<merge>` tags their XML.
     - A reusable control with a nice API (preferably this one). This is achievable through subclassing a layout widget like `LinearLayout` or `ConstraintLayout`.
-2. I have to admit: I hate intents. I might hate them more than  Android's prefrences! In this case, intents are a fine mechanism, but if you come up with something that doesn't rely on them then :thumbs_up:. Please feel free to contribute it here to help others!
+2. I have to admit: I hate intents. I might hate them more than  Android's prefrences! In this case, intents are a fine mechanism, but if you come up with something that doesn't rely on them then :thumbsup:. Please feel free to contribute it here to help others!
 
 Contribute
 ----------
