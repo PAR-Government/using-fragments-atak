@@ -38,7 +38,13 @@ But I don't know everything!
 
 The implementation here is _a_ way it can be accomplished. If experimentation yields more canonical, more efficient, or more maintainable ways of accomplishing this then please contribute to this example!
 
+Notes
+-----
+* This was built against the ATAK 4.2.0 Plugin API and should be incremented to match whatever Plugin API version ATAK is on if you want to run this plugin.
+* This plugin was adapted from the [PluginTemplate][Template] project, but abandoned the TakDev Gradle Plugin that the template uses. It was causing excruciating Gradle sync times > 20 minutes, and still wouldn't successfully build. Once the TakDev Gradle plugin implementation is ironed out, it can be incorportaed here by replacing the `build.gradle` file.
+
 [Fragments]: https://developer.android.com/guide/components/fragments
 [Choreographer]: ./app/src/main/java/com/atakmap/android/usingfragments/ui/frag/ChoreographerFragment.java
 [TR]: https://git.takmaps.com/SOMPE-Plugin-Developers/tacticalroute
 [impl]: ./app/src/main/java/com/atakmap/android/usingfragments/ui/frag
+[Template]: https://git.takmaps.com/samples/PluginTemplate

@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import com.atakmap.android.usingfragments.plugin.R
 
+/**
+ * A sample fragment implementation in Kotlin.
+ */
 class SettingsFragment private constructor() : Fragment() {
 
     private lateinit var pluginContext: Context
