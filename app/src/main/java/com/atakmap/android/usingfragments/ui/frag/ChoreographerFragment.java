@@ -21,6 +21,27 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.reflect.Type;
 import java.util.Stack;
 
+/**
+ * This Fragment implementation handles forward and backward navigation
+ * between different Fragments.
+ *
+ * This implementation attempts to get around some limitations on using
+ * Fragments related to quirks like ATAK vs Plugin Context, and hosting
+ * Fragments in the DropDown vs owning the Activity.
+ *
+ * One way we do this is by maintaining our own back stack. Normally,
+ * FragmentManager::popBackStack would be called to navigate back one
+ * Fragment, but due to Context issues the Child FragmentManager for
+ * this Fragment is being used for FragmentTransactions
+ * rather than that of the Activity. I suspect it's for these reasons
+ * canonical back stack management and FragmentTransaction processing
+ * has had limited success.
+ *
+ * This implementation also caches the most recently visible fragment
+ * so that it can be shown again in the event that the DropDown closes
+ * and re-opens.
+ *
+ */
 public class ChoreographerFragment extends Fragment implements IBackButtonHandler {
     private static final String LOG_TAG = "ChoreographerFragment";
 
@@ -36,10 +57,13 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
     }
 
     /**
-     * Factory method for the DropDownReceiver to "inject" the plugin
-     * context.
-     * @param pluginContext
-     * @return
+     * Factory method for new instance of this Fragment. This allows
+     * member injection of the plugin context.
+     *
+     * With Dagger employed for DI, this would not be needed.
+     *
+     * @param pluginContext The plugin context
+     * @return A new instance of the ChoreographerFragment
      */
     public static ChoreographerFragment newInstance(Context pluginContext) {
         ChoreographerFragment frag = new ChoreographerFragment();
@@ -53,7 +77,9 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
      * If you're using Dagger for DI, explicitly ask for member
      * injection here.
      *
-     * @param context
+     * @param context The context this Fragment is attached to.
+     *                I've never checked, but suspect this will be
+     *                the ATAK Context.
      */
     @Override
     public void onAttach(@NotNull Context context) {
@@ -81,14 +107,22 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
     /**
      * onStart lifecycle method.
      *
-     * If you are using RxJava, here (or onResume) are
-     * good places to setup or connect to streams.
+     * If you are using RxJava, here or onResume() are
+     * good places to setup and connect to streams.
      */
     @Override
     public void onStart() {
         super.onStart();
     }
 
+    /**
+     * onResume lifecycle method.
+     *
+     * Here is a good place to show either the plugin's main
+     * layout if it's just being opened, or the most recently
+     * visible fragment if it's this is being brought back to
+     * the screen after brief navigation away from the drop down.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -111,10 +145,10 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
     }
 
     /**
-     * If you are using RxJava here or onPause are
+     * If you are using RxJava here or onPause() are
      * good places to dispose data streams that shouldn't
-     * stay alive when the used navigates away from this
-     * fragment.
+     * stay alive when the user navigates away from this
+     * Fragment.
      *
      * "View binding" streams should be disposed in
      * onDestroyView.
@@ -149,7 +183,21 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
     public void onDetach() {
         super.onDetach();
     }
-    
+
+    /**
+     * Handle back button presses. The DropDownReceiver delegates
+     * back button events here.
+     *
+     * The Choreographer delegates back button presses to the
+     * currently visible fragment if it implements the
+     * IBackButtonHandler interface. This allows for the visible
+     * fragment to perform cleanup logic before the view is changed
+     * out, or to consume the back button event entirely.
+     *
+     * @return false to signal the DropDownReceiver to close the
+     *          DropDown. Return true to consume the back button
+     *          event.
+     */
     @Override
     public boolean onBackButtonPressed() {
         if (currentlyVisible instanceof IBackButtonHandler) {
@@ -169,6 +217,8 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
             return false;
         }
 
+        // calling this method skips the logic to cache the visible fragment
+        // preventing a loop going back and forth between the same two fragments
         showFragmentActual(previous);
 
         return true;
@@ -176,6 +226,9 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
 
     /**
      * Instantiate and show the Fragment of the given type.
+     *
+     * Any errors related to instantiating the Fragment through
+     * reflection are logged, rather than being thrown.
      *
      * @param type The fragment's type. Used to instantiate through reflection.
      * @param args Arguments to be passed to the fragment.
@@ -204,6 +257,16 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
         showFragment(frag, args);
     }
 
+    /**
+     * Show the given fragment.
+     *
+     * This implementation assumes that any args needed for
+     * the fragment were already set, but provides a parameter
+     * to supplement those args before showing it.
+     *
+     * @param fragment the fragment to be shown
+     * @param additionalArgs supplemental args passed to Fragment::setArguments
+     */
     public void showFragment(@NonNull Fragment fragment, @Nullable Bundle additionalArgs) {
         if (additionalArgs != null) {
             Bundle args = fragment.getArguments();

@@ -18,14 +18,16 @@ import org.jetbrains.annotations.NotNull;
 
 public class MainFragment extends Fragment {
 
-    Context pluginContext;
+    private Context pluginContext;
 
     /**
      * Factory method for the DropDownReceiver to "inject" the plugin
      * context.
      *
-     * @param pluginContext
-     * @return
+     * If Dagger is employed for DI, this isn't necessary.
+     *
+     * @param pluginContext The plugin Context
+     * @return a new instance of this Fragment
      */
     public static MainFragment newInstance(Context pluginContext) {
         MainFragment frag = new MainFragment();
@@ -35,11 +37,13 @@ public class MainFragment extends Fragment {
 
     /**
      * onAttach lifecycle method.
-     * <p>
+     *
      * If you're using Dagger for DI, explicitly ask for member
      * injection here.
      *
-     * @param context
+     * @param context The context this Fragment is attached to.
+     *                I've never checked, but suspect this will be
+     *                the ATAK Context.
      */
     @Override
     public void onAttach(@NotNull Context context) {
@@ -70,15 +74,23 @@ public class MainFragment extends Fragment {
 
     /**
      * onStart lifecycle method.
-     * <p>
-     * If you are using RxJava, here (or onResume) are
-     * good places to setup or connect to streams.
+     *
+     * If you are using RxJava, here or onResume() are
+     * good places to setup and connect to streams.
      */
     @Override
     public void onStart() {
         super.onStart();
     }
 
+    /**
+     * onResume lifecycle method.
+     *
+     * Here is a good place to show either the plugin's main
+     * layout if it's just being opened, or the most recently
+     * visible fragment if it's this is being brought back to
+     * the screen after brief navigation away from the drop down.
+     */
     @Override
     public void onResume() {
         super.onResume();
@@ -90,11 +102,11 @@ public class MainFragment extends Fragment {
     }
 
     /**
-     * If you are using RxJava here or onPause are
+     * If you are using RxJava here or onPause() are
      * good places to dispose data streams that shouldn't
-     * stay alive when the used navigates away from this
-     * fragment.
-     * <p>
+     * stay alive when the user navigates away from this
+     * Fragment.
+     *
      * "View binding" streams should be disposed in
      * onDestroyView.
      */
@@ -105,7 +117,7 @@ public class MainFragment extends Fragment {
 
     /**
      * onDestroyView lifecycle method.
-     * <p>
+     *
      * If you are using RxJava, here is a good place
      * to dispose of streams used for view binding.
      */
@@ -121,7 +133,7 @@ public class MainFragment extends Fragment {
 
     /**
      * The final step in the lifecycle.
-     * <p>
+     *
      * After this, the Fragment is destroyed.
      */
     @Override
