@@ -249,6 +249,10 @@ android {
             abiFilters "armeabi-v7a", "arm64-v8a", "x86"
         }
     }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     if (file("$project.projectDir/../espresso/testSetup.gradle").exists()) {
         apply from: '../espresso/testSetup.gradle'
