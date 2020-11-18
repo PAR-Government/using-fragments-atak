@@ -11,8 +11,6 @@ buildscript {
     ext.PLUGIN_VERSION = "1.0"
     ext.ATAK_VERSION = "4.2.0"
 
-//    def takdevVersion = '1.1.0'
-
     def getValueFromPropertiesFile = { propFile, key ->
         if(!propFile.isFile() || !propFile.canRead())
             return null
@@ -32,17 +30,6 @@ buildscript {
         return (null == prop) ? defValue : prop
     }
 
-//    def urlKey = 'takrepo.url'
-//
-//    ext.isDevKitEnabled = { ->
-//        return getProperty(urlKey, null) != null
-//    }
-//
-//    ext.takrepoUrl = getProperty(urlKey, 'http://localhost/')
-//    ext.takrepoUser = getProperty('takrepo.user', 'invalid')
-//    ext.takrepoPassword = getProperty('takrepo.password', 'invalid')
-//    ext.takdevPlugin = getProperty('takdev.plugin', "${rootDir}/../../atak-gradle-takdev.jar")
-
     repositories {
         jcenter()
         google()
@@ -51,21 +38,9 @@ buildscript {
         maven {
             url "https://jitpack.io"
         }
-//        maven {
-//            url = takrepoUrl
-//            credentials {
-//                username = takrepoUser
-//                password = takrepoPassword
-//            }
-//        }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:4.0.1'
-//        if(isDevKitEnabled()) {
-//            classpath "com.atakmap.gradle:atak-gradle-takdev:${takdevVersion}"
-//        } else {
-//            classpath files(takdevPlugin)
-//        }
     }
 }
 
@@ -83,7 +58,6 @@ allprojects {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-//apply plugin: 'atak-takdev-plugin'
 
 // Attempt to get a suitable version name for the plugin based on
 // either a git or svn repository
@@ -147,13 +121,22 @@ android {
 
     signingConfigs {
         debug {
-            storeFile file("${buildDir}/android_keystore")
+            if (new File("sdk/android_keystore").exists()) {
+                storeFile file("../sdk/android_keystore")
+            } else {
+                storeFile file("../../../android_keystore")
+            }
             storePassword "tnttnt"
             keyAlias "wintec_mapping"
             keyPassword "tnttnt"
         }
+
         release {
-            storeFile file("${buildDir}/android_keystore")
+            if (new File("sdk/android_keystore").exists()) {
+                storeFile file("../sdk/android_keystore")
+            } else {
+                storeFile file("../../../android_keystore")
+            }
             storePassword "tnttnt"
             keyAlias "wintec_mapping"
             keyPassword "tnttnt"
@@ -163,14 +146,22 @@ android {
     buildTypes {
         debug {
             debuggable true
-            matchingFallbacks = ['sdk']
         }
 
         release {
+            def f = new File("$project.projectDir/../../../ATAK/app/build/outputs/mapping/release/mapping.txt")
+            if (f.exists()) {
+                System.setProperty("atak.proguard.mapping", "${f.canonicalPath}")
+            } else {
+                println("WARNING: no mapping file exists, obfuscating just the plugin to work with the development core")
+                file("$project.projectDir/build").mkdir()
+                file("$project.projectDir/build/blank-mapping.txt").text = ""
+                System.setProperty("atak.proguard.mapping", "./build/blank-mapping.txt")
+            }
+
             minifyEnabled true
             proguardFile 'proguard-gradle.txt'
             signingConfig signingConfigs.release
-            matchingFallbacks = ['odk']
         }
     }
 
