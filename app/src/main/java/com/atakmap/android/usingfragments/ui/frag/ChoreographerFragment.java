@@ -16,6 +16,8 @@ import androidx.fragment.app.FragmentTransaction;
 import com.atakmap.android.usingfragments.plugin.R;
 import com.atakmap.android.usingfragments.ui.IBackButtonHandler;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.lang.reflect.Type;
 import java.util.Stack;
 
@@ -24,10 +26,14 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
 
     private ViewGroup contentContainer;
 
-    private Stack<Fragment> backStack = new Stack();
+    private final Stack<Fragment> backStack = new Stack<>();
     private Fragment currentlyVisible = null;
 
     Context pluginContext;
+
+    private ChoreographerFragment() {
+        super();
+    }
 
     /**
      * Factory method for the DropDownReceiver to "inject" the plugin
@@ -50,7 +56,7 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
      * @param context
      */
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NotNull Context context) {
         super.onAttach(context);
     }
 
@@ -60,16 +66,16 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
+    public View onCreateView(@NotNull LayoutInflater inflater, ViewGroup parent, Bundle savedInstanceState) {
         super.onCreateView(inflater, parent, savedInstanceState);
         LayoutInflater pluginInflater = LayoutInflater.from(pluginContext);
-        contentContainer = (ViewGroup) pluginInflater.inflate(R.layout.main_layout, parent, false);
-        return contentContainer;
+        return pluginInflater.inflate(R.layout.choreographer, parent, false);
     }
 
     @Override
-    public void onViewCreated(View view, Bundle savedInstanceState) {
+    public void onViewCreated(@NotNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        contentContainer = view.findViewById(R.id.content_container);
     }
 
     /**
@@ -86,9 +92,15 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
     @Override
     public void onResume() {
         super.onResume();
+        Fragment frag;
         if (currentlyVisible != null) {
-            showFragmentActual(currentlyVisible);
+            frag = currentlyVisible;
+        } else {
+            // show the main layout
+            frag = MainFragment.newInstance(pluginContext);
         }
+
+        showFragment(frag, null);
     }
 
     @Override
@@ -158,6 +170,7 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
         }
 
         showFragmentActual(previous);
+
         return true;
     }
 
@@ -167,7 +180,7 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
      * @param type The fragment's type. Used to instantiate through reflection.
      * @param args Arguments to be passed to the fragment.
      */
-    public void showNextFragment(Class<?> type, Bundle args) {
+    public void showFragment(Class<?> type, Bundle args) {
         Type superType = type.getGenericSuperclass();
         if (superType != null && !superType.equals(Fragment.class)) {
             Log.w(LOG_TAG, "showFragment called with a non-Fragment type: " + type.getName());
@@ -188,15 +201,24 @@ public class ChoreographerFragment extends Fragment implements IBackButtonHandle
             return;
         }
 
-        if (args != null) {
-            frag.setArguments(args);
+        showFragment(frag, args);
+    }
+
+    public void showFragment(@NonNull Fragment fragment, @Nullable Bundle additionalArgs) {
+        if (additionalArgs != null) {
+            Bundle args = fragment.getArguments();
+            if (args == null) {
+                args = new Bundle();
+            }
+            args.putAll(additionalArgs);
+            fragment.setArguments(args);
         }
 
         if (currentlyVisible != null) {
             pushBackStack(currentlyVisible);
         }
 
-        showFragmentActual(frag);
+        showFragmentActual(fragment);
     }
 
     /**
