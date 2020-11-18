@@ -1,11 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- App -->
-    <string name="app_name">Plugin Template</string>
+    <string name="app_name">Example: Using Fragments</string>
     <!-- description -->
-    <string name="app_desc">This plugin demonstrate bare bones plugin UI, and may be used to start a new plugin project</string>
+    <string name="app_desc">This plugin demonstrate using Fragments in ATAK.</string>
 
-
-
+    <string name="lorem_ipsum">
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+        Curabitur sed purus nec est gravida facilisis sit amet eu turpis.
+        Praesent eu blandit neque. Praesent viverra ut eros at ultricies.
+        Praesent vel sapien tempus, consequat sem ut, porttitor sapien.
+        Praesent elementum quam nec elit ornare, id pulvinar orci venenatis.
+        Quisque nec neque ornare, congue lectus efficitur, facilisis metus.
+        Quisque non quam ac sem scelerisque ultrices. Sed id enim nisi.
+        Nam commodo congue malesuada.
+        Donec nisi turpis, ornare ut bibendum quis, imperdiet sit amet sem.
+    </string>
+    <string name="main_layout_title">First Fragment</string>
+    <string name="settings_layout_title">Settings Fragment</string>
 
 </resources>
