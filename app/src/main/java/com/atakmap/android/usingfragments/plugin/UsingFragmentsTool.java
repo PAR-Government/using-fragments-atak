@@ -31,7 +31,7 @@ public class UsingFragmentsTool extends Tool implements ToolDescriptor {
     @Override
     public Drawable getIcon() {
         return (context == null) ? null
-                : context.getResources().getDrawable(R.drawable.ic_launcher);
+                : context.getResources().getDrawable(android.R.drawable.ic_menu_mapmode);
     }
 
     @Override
