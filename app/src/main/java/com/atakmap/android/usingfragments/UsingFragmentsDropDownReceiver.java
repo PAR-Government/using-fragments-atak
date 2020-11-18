@@ -3,18 +3,17 @@ package com.atakmap.android.usingfragments;
 
 import android.content.Context;
 import android.content.Intent;
-import android.view.View;
 
-import androidx.fragment.app.Fragment;
-
-import com.atak.plugins.impl.PluginLayoutInflater;
 import com.atakmap.android.maps.MapView;
-import com.atakmap.android.usingfragments.plugin.R;
 import com.atakmap.android.dropdown.DropDown.OnStateListener;
 import com.atakmap.android.dropdown.DropDownReceiver;
 
 import com.atakmap.android.usingfragments.ui.frag.ChoreographerFragment;
+import com.atakmap.android.usingfragments.ui.frag.SettingsFragment;
 import com.atakmap.coremap.log.Log;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UsingFragmentsDropDownReceiver extends DropDownReceiver implements
         OnStateListener {
@@ -23,9 +22,11 @@ public class UsingFragmentsDropDownReceiver extends DropDownReceiver implements
             .getSimpleName();
 
     public static final String SHOW_PLUGIN = "com.atakmap.android.usingfragments.SHOW_PLUGIN";
+    public static final String SHOW_SETTINGS_FRAGMENT = "com.atakmap.android.usingfragments.SHOW_SECOND_FRAGMENT";
+
     private final Context pluginContext;
 
-    private final ChoreographerFragment rootFragment;
+    private final ChoreographerFragment choreographer;
 
     /**************************** CONSTRUCTOR *****************************/
 
@@ -33,7 +34,7 @@ public class UsingFragmentsDropDownReceiver extends DropDownReceiver implements
             final Context context) {
         super(mapView);
         this.pluginContext = context;
-        this.rootFragment = ChoreographerFragment.newInstance(pluginContext);
+        this.choreographer = ChoreographerFragment.newInstance(pluginContext);
     }
 
     /**************************** PUBLIC METHODS *****************************/
@@ -50,16 +51,24 @@ public class UsingFragmentsDropDownReceiver extends DropDownReceiver implements
         if (action == null)
             return;
 
-        if (action.equals(SHOW_PLUGIN)) {
-
-            Log.d(TAG, "showing plugin drop down");
-            showDropDown(
-                    rootFragment,
-                    HALF_WIDTH, FULL_HEIGHT,
-                    FULL_WIDTH, HALF_HEIGHT,
-                    false,
-                    false
-            );
+        switch (action) {
+            case SHOW_PLUGIN:
+                Log.d(TAG, "showing plugin drop down");
+                showDropDown(
+                        choreographer,
+                        HALF_WIDTH, FULL_HEIGHT,
+                        FULL_WIDTH, HALF_HEIGHT,
+                        false,
+                        false
+                );
+                break;
+            case SHOW_SETTINGS_FRAGMENT:
+                if (choreographer == null) {
+                    return;
+                }
+                SettingsFragment second = SettingsFragment.Factory.newInstance(pluginContext);
+                choreographer.showFragment(second, null);
+                break;
         }
     }
 
@@ -81,6 +90,13 @@ public class UsingFragmentsDropDownReceiver extends DropDownReceiver implements
 
     @Override
     protected boolean onBackButtonPressed() {
-        return rootFragment.onBackButtonPressed();
+        return choreographer.onBackButtonPressed();
+    }
+
+    List<String> getAllActions() {
+        List<String> actions = new ArrayList<>();
+        actions.add(SHOW_PLUGIN);
+        actions.add(SHOW_SETTINGS_FRAGMENT);
+        return actions;
     }
 }

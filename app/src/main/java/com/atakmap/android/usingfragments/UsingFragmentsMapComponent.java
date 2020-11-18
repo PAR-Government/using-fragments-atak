@@ -26,12 +26,13 @@ public class UsingFragmentsMapComponent extends DropDownMapComponent {
         super.onCreate(context, intent, view);
         pluginContext = context;
 
-        ddr = new UsingFragmentsDropDownReceiver(
-                view, context);
+        ddr = new UsingFragmentsDropDownReceiver(view, context);
 
         Log.d(TAG, "registering the plugin filter");
         DocumentedIntentFilter ddFilter = new DocumentedIntentFilter();
-        ddFilter.addAction(UsingFragmentsDropDownReceiver.SHOW_PLUGIN);
+        for (String action : ddr.getAllActions()) {
+            ddFilter.addAction(action);
+        }
         registerDropDownReceiver(ddr, ddFilter);
     }
 
