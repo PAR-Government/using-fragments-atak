@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="fontSize">14sp</dimen>
+
+    <dimen name="button_small">30dp</dimen>
+    <dimen name="button_medium">40dp</dimen>
+    <dimen name="button_large">50dp</dimen>
+
+</resources>
+
